@@ -1,0 +1,412 @@
+@prefix ex:   <http://example.org/seguros#> .
+@prefix rdf:  <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl:  <http://www.w3.org/2002/07/owl#> .
+@prefix xsd:  <http://www.w3.org/2001/XMLSchema#> .
+@prefix foaf: <http://xmlns.com/foaf/0.1/> .
+@prefix dc:   <http://purl.org/dc/elements/1.1/> .
+
+
+# ============================================================
+# CLASES
+# ============================================================
+
+ex:Persona a rdfs:Class ;
+    rdfs:label "Cualquier ser humano relacionado con el seguro" .
+
+ex:Cliente rdfs:subClassOf ex:Persona ;
+    rdfs:label "Persona que contrata la póliza (Asegurado)" .
+
+ex:Beneficiario rdfs:subClassOf ex:Persona ;
+    rdfs:label "Persona que recibirá la indemnización en caso de siniestro" .
+
+ex:Seguro a rdfs:Class ;
+    rdfs:label "Entidad general de protección" .
+
+ex:SeguroVida rdfs:subClassOf ex:Seguro ;
+    rdfs:label "Contrato que cubre el fallecimiento o supervivencia del asegurado" .
+
+ex:Cobertura a rdfs:Class ;
+    rdfs:label "Riesgo específico que asume la aseguradora" .
+
+ex:Requisito a rdfs:Class ;
+    rdfs:label "Condiciones legales o médicas para la validez del seguro" .
+
+ex:EnfermedadPrevia rdfs:subClassOf ex:Requisito ;
+    rdfs:label "Requisito específico de salud obligatorio" .
+
+ex:AntecedenteFamiliar rdfs:subClassOf ex:Requisito ;
+    rdfs:label "Requisito específico de salud obligatorio" .
+
+ex:Poliza a rdfs:Class ;
+    rdfs:label "Documento legal que formaliza el seguro" .
+
+ex:Siniestro a rdfs:Class ;
+    rdfs:label "Evento que activa la ejecución del seguro" .
+
+ex:EstadoSalud a rdfs:Class ;
+    rdfs:label "Condición clínica del asegurado" .
+
+ex:EstiloVida a rdfs:Class ;
+    rdfs:label "Hábitos y conductas del cliente" .
+
+ex:Trabajo a rdfs:Class ;
+    rdfs:label "Ocupación laboral del cliente" .
+
+ex:PerfilDeRiesgo a rdfs:Class ;
+    rdfs:label "Perfil de riesgo del cliente" .
+
+
+# ============================================================
+# PROPIEDADES
+# ============================================================
+
+ex:adquiereSeguro a rdf:Property ;
+    rdfs:domain ex:Cliente ;
+    rdfs:range  ex:SeguroVida .
+
+ex:cumpleRequisito a rdf:Property ;
+    rdfs:domain ex:Cliente ;
+    rdfs:range  ex:EnfermedadPrevia .   # también range AntecedenteFamiliar
+
+ex:haReportadoSiniestro a rdf:Property ;
+    rdfs:domain ex:Cliente ;
+    rdfs:range  ex:Siniestro .
+
+ex:cubreSiniestro a rdf:Property ;
+    rdfs:domain ex:Cobertura ;
+    rdfs:range  ex:Siniestro .
+
+ex:trabajaEn a rdf:Property ;
+    rdfs:label  "Relaciona al cliente con su ocupación" ;
+    rdfs:domain ex:Cliente ;
+    rdfs:range  ex:Trabajo .
+
+ex:tieneEstiloVida a owl:ObjectProperty ;
+    rdfs:domain ex:Cliente ;
+    rdfs:range  ex:EstiloVida .
+
+ex:tienePuntajeSalud a rdf:Property ;
+    rdfs:label  "Grado de salud del cliente (0-100)" ;
+    rdfs:domain ex:Cliente ;
+    rdfs:range  xsd:integer .
+
+ex:incluyeCobertura a rdf:Property ;
+    rdfs:label  "Asocia un seguro con sus coberturas" ;
+    rdfs:domain ex:Seguro ;
+    rdfs:range  ex:Cobertura .
+
+ex:montoAsegurado a rdf:Property ;
+    rdfs:label  "Capital que se pagará en caso de siniestro" ;
+    rdfs:domain ex:Cobertura ;
+    rdfs:range  xsd:decimal .
+
+ex:requiereRequisito a rdf:Property ;
+    rdfs:label  "Vincula el seguro con sus condiciones" ;
+    rdfs:domain ex:Seguro ;
+    rdfs:range  ex:Requisito .
+
+ex:tieneBeneficiario a owl:ObjectProperty ;
+    rdfs:label  "Relaciona el seguro con quien recibe el capital" ;
+    rdfs:domain ex:Seguro ;
+    rdfs:range  ex:Beneficiario .
+
+ex:costoSeguro a rdf:Property ;
+    rdfs:label  "Precio total que el cliente paga por el seguro" ;
+    rdfs:domain ex:Poliza ;
+    rdfs:range  xsd:decimal .
+
+ex:aseguraA a owl:ObjectProperty ;
+    rdfs:domain ex:Poliza ;
+    rdfs:range  ex:Cliente .
+
+ex:dni a owl:DatatypeProperty ;
+    rdfs:domain ex:Persona ;
+    rdfs:range  xsd:int .
+
+ex:sumaAseguradaTotal a owl:DatatypeProperty ;
+    rdfs:domain ex:Poliza ;
+    rdfs:range  xsd:decimal .
+
+# Uso de vocabularios externos
+foaf:name rdfs:domain ex:Persona ;
+          rdfs:range  xsd:string .
+
+dc:identifier rdfs:domain ex:SeguroVida ;
+              rdfs:range  xsd:string .
+
+
+# --- PROPIEDADES DE ENTRADA (Lógica Difusa) ---
+
+ex:tieneEdad a owl:DatatypeProperty ;
+    rdfs:domain ex:Persona ;
+    rdfs:range  xsd:integer .       # 18 - 100
+
+ex:tieneIndiceSalud a owl:DatatypeProperty ;
+    rdfs:domain ex:EstadoSalud ;
+    rdfs:range  xsd:integer .       # 0 - 100
+
+ex:tieneIndiceEstiloVida a owl:DatatypeProperty ;
+    rdfs:domain ex:EstiloVida ;
+    rdfs:range  xsd:integer .       # 0 - 100
+
+ex:tieneIndiceRiesgoLaboral a owl:DatatypeProperty ;
+    rdfs:domain ex:Trabajo ;
+    rdfs:range  xsd:integer .       # 0 - 100
+
+ex:padeceEnfermedad a rdf:Property ;
+    rdfs:domain ex:Cliente ;
+    rdfs:range  ex:EnfermedadPrevia .
+
+
+# --- PROPIEDADES DE SALIDA (Sistema Experto) ---
+
+ex:tienePerfilRiesgo a owl:ObjectProperty ;
+    rdfs:domain ex:Cliente ;
+    rdfs:range  ex:PerfilDeRiesgo .
+
+ex:tieneIndiceRiesgo a owl:DatatypeProperty ;
+    rdfs:domain ex:PerfilDeRiesgo ;
+    rdfs:range  xsd:integer .       # 0 - 100
+
+
+# ============================================================
+# INSTANCIAS — Personas
+# ============================================================
+
+ex:persona01 a ex:Persona ; foaf:name "Juan Perez"    ; ex:tieneEdad 45 ; ex:dni 12345678 .
+ex:persona02 a ex:Persona ; foaf:name "Maria Garcia"  ; ex:tieneEdad 30 ; ex:dni 23456789 .
+ex:persona03 a ex:Persona ; foaf:name "Carlos Ruiz"   ; ex:tieneEdad 55 ; ex:dni 34567890 .
+ex:persona04 a ex:Persona ; foaf:name "Elena López"   ; ex:tieneEdad 22 ; ex:dni 45678901 .
+
+
+# ============================================================
+# INSTANCIAS — Clientes
+# ============================================================
+
+ex:cliente01 a ex:Cliente ;
+    foaf:name            "Roberto Diaz" ;
+    ex:tieneEdad         40 ;
+    ex:tienePuntajeSalud 85 ;
+    ex:adquiereSeguro    ex:seguroVidaOro .
+
+ex:cliente02 a ex:Cliente ;
+    foaf:name            "Ana Torres" ;
+    ex:tieneEdad         28 ;
+    ex:tienePuntajeSalud 95 ;
+    ex:adquiereSeguro    ex:seguroVidaPlata .
+
+ex:cliente03 a ex:Cliente ;
+    foaf:name            "Luis Mendez" ;
+    ex:tieneEdad         60 ;
+    ex:tienePuntajeSalud 60 ;
+    ex:adquiereSeguro    ex:seguroVidaBronce .
+
+ex:cliente04 a ex:Cliente ;
+    foaf:name            "Sofia Castro" ;
+    ex:tieneEdad         35 ;
+    ex:tienePuntajeSalud 75 ;
+    ex:adquiereSeguro    ex:seguroVidaExpress .
+
+
+# ============================================================
+# INSTANCIAS — Beneficiarios
+# ============================================================
+
+ex:beneficiario01 a ex:Beneficiario ;
+    foaf:name  "Laura Diaz" ;
+    rdfs:label "Hija del cliente 01" .
+
+ex:beneficiario02 a ex:Beneficiario ;
+    foaf:name  "Pedro Torres" ;
+    rdfs:label "Esposo del cliente 02" .
+
+ex:beneficiario03 a ex:Beneficiario ;
+    foaf:name  "Marta Méndez" ;
+    rdfs:label "Hermana del cliente 03" .
+
+ex:beneficiario04 a ex:Beneficiario ;
+    foaf:name  "Diego Castro" ;
+    rdfs:label "Hijo del cliente 04" .
+
+
+# ============================================================
+# INSTANCIAS — Seguros de Vida
+# ============================================================
+
+ex:seguroVidaOro a ex:SeguroVida ;
+    dc:identifier       "SV-ORO-001" ;
+    ex:costoSeguro      1500.00 ;
+    ex:tieneBeneficiario ex:beneficiario01 .
+
+ex:seguroVidaPlata a ex:SeguroVida ;
+    dc:identifier       "SV-PLA-002" ;
+    ex:costoSeguro      800.00 ;
+    ex:tieneBeneficiario ex:beneficiario02 .
+
+ex:seguroVidaBronce a ex:SeguroVida ;
+    dc:identifier       "SV-BRO-003" ;
+    ex:costoSeguro      400.00 ;
+    ex:tieneBeneficiario ex:beneficiario03 .
+
+ex:seguroVidaExpress a ex:SeguroVida ;
+    dc:identifier       "SV-EXP-004" ;
+    ex:costoSeguro      200.00 ;
+    ex:tieneBeneficiario ex:beneficiario04 .
+
+
+# ============================================================
+# INSTANCIAS — Coberturas
+# ============================================================
+
+ex:cobMuerteNatural a ex:Cobertura ;
+    ex:montoAsegurado 100000.00 ;
+    rdfs:label "Cobertura por causas naturales" .
+
+ex:cobAccidental a ex:Cobertura ;
+    ex:montoAsegurado 200000.00 ;
+    rdfs:label "Doble indemnización por accidente" .
+
+ex:cobInvalidez a ex:Cobertura ;
+    ex:montoAsegurado 50000.00 ;
+    rdfs:label "Adelanto por invalidez total" .
+
+ex:cobEnfermedadTerminal a ex:Cobertura ;
+    ex:montoAsegurado 75000.00 ;
+    rdfs:label "Pago anticipado por diagnóstico terminal" .
+
+
+# ============================================================
+# INSTANCIAS — Requisitos
+# ============================================================
+
+ex:diabetesT2 a ex:EnfermedadPrevia ;
+    rdfs:label "Diabetes Tipo 2" .
+
+ex:hipertension a ex:EnfermedadPrevia ;
+    rdfs:label "Hipertensión Arterial Crónica" .
+
+ex:antCancer a ex:AntecedenteFamiliar ;
+    rdfs:label "Antecedente familiar de Cáncer de Colon" .
+
+ex:antInfarto a ex:AntecedenteFamiliar ;
+    rdfs:label "Antecedente de infarto en familiares de 1er grado" .
+
+
+# ============================================================
+# INSTANCIAS — Pólizas
+# ============================================================
+
+ex:poliza101 a ex:Poliza ;
+    ex:aseguraA           ex:cliente01 ;
+    ex:fechaInicio        "2023-01-01"^^xsd:date ;
+    ex:sumaAseguradaTotal 100000.00 .
+
+ex:poliza102 a ex:Poliza ;
+    ex:aseguraA           ex:cliente02 ;
+    ex:fechaInicio        "2023-05-15"^^xsd:date ;
+    ex:sumaAseguradaTotal 200000.00 .
+
+ex:poliza103 a ex:Poliza ;
+    ex:aseguraA           ex:cliente03 ;
+    ex:fechaInicio        "2024-02-10"^^xsd:date ;
+    ex:sumaAseguradaTotal 50000.00 .
+
+ex:poliza104 a ex:Poliza ;
+    ex:aseguraA           ex:cliente04 ;
+    ex:fechaInicio        "2024-03-20"^^xsd:date ;
+    ex:sumaAseguradaTotal 75000.00 .
+
+
+# ============================================================
+# INSTANCIAS — Siniestros
+# ============================================================
+
+ex:siniestro01 a ex:Siniestro ; rdfs:label "Accidente de tránsito" .
+ex:siniestro02 a ex:Siniestro ; rdfs:label "Fallecimiento por causas naturales" .
+ex:siniestro03 a ex:Siniestro ; rdfs:label "Infarto agudo al miocardio" .
+ex:siniestro04 a ex:Siniestro ; rdfs:label "Caída accidental desde altura" .
+
+
+# ============================================================
+# INSTANCIAS — Estado de Salud
+# ============================================================
+
+ex:saludExcelente a ex:EstadoSalud ;
+    rdfs:label          "Estado Óptimo" ;
+    ex:tieneIndiceSalud 95 .
+
+ex:saludBuena a ex:EstadoSalud ;
+    rdfs:label          "Estado Estable" ;
+    ex:tieneIndiceSalud 75 .
+
+ex:saludRegular a ex:EstadoSalud ;
+    rdfs:label          "Estado de Cuidado" ;
+    ex:tieneIndiceSalud 45 .
+
+ex:saludCritica a ex:EstadoSalud ;
+    rdfs:label          "Estado Deteriorado" ;
+    ex:tieneIndiceSalud 15 .
+
+
+# ============================================================
+# INSTANCIAS — Estilo de Vida
+# ============================================================
+
+ex:estiloSedentario a ex:EstiloVida ;
+    rdfs:label               "Sedentario" ;
+    ex:tieneIndiceEstiloVida 20 .
+
+ex:estiloActivo a ex:EstiloVida ;
+    rdfs:label               "Saludable" ;
+    ex:tieneIndiceEstiloVida 80 .
+
+ex:estiloFumador a ex:EstiloVida ;
+    rdfs:label               "Fumador Crónico" ;
+    ex:tieneIndiceEstiloVida 30 .
+
+ex:estiloDeportesRiesgo a ex:EstiloVida ;
+    rdfs:label               "Aventurero Extremo" ;
+    ex:tieneIndiceEstiloVida 10 .
+
+
+# ============================================================
+# INSTANCIAS — Trabajo
+# ============================================================
+
+ex:trabajoAdmin a ex:Trabajo ;
+    rdfs:label                 "Administrativo de Oficina" ;
+    ex:tieneIndiceRiesgoLaboral 5 .
+
+ex:trabajoVentas a ex:Trabajo ;
+    rdfs:label                 "Vendedor de Campo" ;
+    ex:tieneIndiceRiesgoLaboral 30 .
+
+ex:trabajoConstruccion a ex:Trabajo ;
+    rdfs:label                 "Obrero de Construcción" ;
+    ex:tieneIndiceRiesgoLaboral 70 .
+
+ex:trabajoMineria a ex:Trabajo ;
+    rdfs:label                 "Minero de Socavón" ;
+    ex:tieneIndiceRiesgoLaboral 95 .
+
+
+# ============================================================
+# INSTANCIAS — Perfil de Riesgo
+# ============================================================
+
+ex:perfilBajo a ex:PerfilDeRiesgo ;
+    rdfs:label           "Bajo" ;
+    ex:tieneIndiceRiesgo 21 .
+
+ex:perfilModerado a ex:PerfilDeRiesgo ;
+    rdfs:label           "Medio" ;
+    ex:tieneIndiceRiesgo 44 .
+
+ex:perfilAlto a ex:PerfilDeRiesgo ;
+    rdfs:label           "Alto" ;
+    ex:tieneIndiceRiesgo 69 .
+
+ex:perfilRechazado a ex:PerfilDeRiesgo ;
+    rdfs:label           "Muy Alto" ;
+    ex:tieneIndiceRiesgo 78 .
